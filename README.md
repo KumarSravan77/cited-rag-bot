@@ -12,10 +12,19 @@ provenance, hybrid retrieval, reranking, and citation validation.
 5. Rerank candidates using direct query-term coverage.
 6. Generate from retrieved context only.
 7. Reject citation identifiers that do not map to retrieved chunks.
+8. Apply the shared production guardrail policy to questions and final JSON answers.
+9. Remove retrieved chunks containing indirect injection, harmful instructions, or secrets.
+10. Sanitize PII in retrieved evidence before prompt construction.
 
 With `OPENAI_API_KEY`, the service uses `text-embedding-3-small` and the
 Responses API. Without a key, it degrades to deterministic local embeddings and
 extractive answers, which makes the complete pipeline locally testable.
+
+In production, set `LLM_GATEWAY_URL` and `LLM_GATEWAY_API_KEY` so answer generation
+runs through the portfolio's Production LLM Gateway. The guardrails package is pinned
+to an immutable commit and is enforced independently in both services. This provides
+defense in depth: the RAG service filters untrusted retrieved content, while the gateway
+protects the shared model boundary.
 
 ## Run
 

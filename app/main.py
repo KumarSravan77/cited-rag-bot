@@ -3,7 +3,9 @@ import re
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
+from guardrails import GuardrailMiddleware
 
+from app.guardrail_context import filter_retrieved_context
 from app.models import AskRequest, AskResponse, Chunk, Citation
 from app.document_ingest import SUPPORTED_SUFFIXES, extract_document
 from app.providers import build_embedder, synthesize
@@ -12,6 +14,7 @@ from app.store import ChunkStore
 
 store = ChunkStore(Path(os.getenv("RAG_DATABASE_PATH", "data/rag.db")))
 app = FastAPI(title="Cited Document RAG Bot", version="0.2.0")
+app.add_middleware(GuardrailMiddleware)
 
 
 @app.get("/healthz")
@@ -46,6 +49,7 @@ async def ingest(request: Request, filename: str):
 @app.post("/v1/ask", response_model=AskResponse)
 def ask(request: AskRequest):
     hits = hybrid_search(request.question, store.all(), build_embedder(), request.top_k)
+    hits, filtered_chunks = filter_retrieved_context(hits)
     answer = synthesize(request.question, hits)
     referenced = sorted(set(int(value) for value in re.findall(r"\[(\d+)\]", answer)))
     valid_ids = [value for value in referenced if 1 <= value <= len(hits)]
@@ -60,4 +64,10 @@ def ask(request: AskRequest):
     if referenced != valid_ids:
         answer = "The generated answer contained an unsupported citation and was rejected."
         citations, grounded = [], False
-    return AskResponse(answer=answer, citations=citations, grounded=grounded)
+    return AskResponse(
+        answer=answer,
+        citations=citations,
+        grounded=grounded,
+        guardrail_policy=os.getenv("GUARDRAIL_POLICY_VERSION", "2026-08-17"),
+        filtered_chunks=filtered_chunks,
+    )
