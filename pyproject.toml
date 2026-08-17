@@ -9,6 +9,7 @@ requires-python = ">=3.10"
 dependencies = [
   "fastapi>=0.115,<1", "httpx>=0.27,<1", "openai>=1.100,<3",
   "pydantic>=2.8,<3", "docling>=2.70,<3",
+  "security-guardrail-middleware @ https://github.com/KumarSravan77/security-guardrail-middleware/archive/9ace6dc3b107c6462ce5dd3952ee4b7d5623ba9b.tar.gz",
   "uvicorn[standard]>=0.30,<1"
 ]
 

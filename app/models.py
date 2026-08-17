@@ -49,3 +49,5 @@ class AskResponse(BaseModel):
     answer: str
     citations: List[Citation]
     grounded: bool
+    guardrail_policy: str
+    filtered_chunks: int = 0
