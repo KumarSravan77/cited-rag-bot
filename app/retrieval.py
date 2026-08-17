@@ -65,6 +65,8 @@ def hybrid_search(query: str, chunks: Sequence[Chunk], embedder, top_k: int) -> 
         # Hybrid retrieval followed by a lightweight query-overlap reranker.
         score = 0.45 * (bm25 / lexical_max) + 0.35 * max(0, dense) + 0.20 * overlap
         ranked.append(SearchHit(
-            document=chunk.document, page=chunk.page, text=chunk.text, score=round(score, 6)
+            document=chunk.document, page=chunk.page, page_end=chunk.page_end,
+            headings=chunk.headings, content_types=chunk.content_types,
+            text=chunk.text, score=round(score, 6)
         ))
     return sorted(ranked, key=lambda hit: hit.score, reverse=True)[:top_k]

@@ -24,7 +24,8 @@ def synthesize(question: str, hits: List[SearchHit]) -> str:
     if not hits:
         return "I could not find supporting information in the indexed documents."
     context = "\n\n".join(
-        f"[{index}] {hit.document}, page {hit.page}: {hit.text}"
+        f"[{index}] {hit.document}, pages {hit.page}-{hit.page_end}, "
+        f"section {' > '.join(hit.headings) or 'unlabelled'}: {hit.text}"
         for index, hit in enumerate(hits, start=1)
     )
     if not os.getenv("OPENAI_API_KEY"):

@@ -1,1 +1,1 @@
-"""Cited PDF RAG bot."""
+"""Layout-aware cited document RAG service."""

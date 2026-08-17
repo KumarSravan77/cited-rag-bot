@@ -20,6 +20,7 @@ def test_answer_returns_page_citation(tmp_path: Path, monkeypatch):
     body = response.json()
     assert body["grounded"] is True
     assert body["citations"][0]["page"] == 7
+    assert body["citations"][0]["page_end"] == 7
     assert body["citations"][0]["document"] == "operations.pdf"
 
 
